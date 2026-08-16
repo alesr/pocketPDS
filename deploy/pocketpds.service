@@ -1,0 +1,29 @@
+[Unit]
+Description=PocketPDS Personal Data Server
+Documentation=https://github.com/alesr/pocketPDS
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pocketpds
+Group=pocketpds
+ExecStart=/usr/local/bin/pocketpds serve
+Restart=on-failure
+RestartSec=5
+
+Environment=POCKETPDS_DB=/var/lib/pocketpds/pocketpds.db
+Environment=POCKETPDS_DATA_DIR=/var/lib/pocketpds
+Environment=POCKETPDS_PUBLIC_URL=https://pds.example.com
+Environment=POCKETPDS_SECRET=change-me
+Environment=POCKETPDS_DID_METHOD=web
+Environment=POCKETPDS_ADMIN_TOKEN=change-me
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

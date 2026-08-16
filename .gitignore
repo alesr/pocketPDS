@@ -1,0 +1,9 @@
+# Runtime artifacts
+*.db
+*.db-wal
+*.db-shm
+data/
+/pocketpds
+
+# Personal docs (not part of the public repo)
+EXPLAINER.md

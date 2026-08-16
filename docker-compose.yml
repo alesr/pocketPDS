@@ -1,0 +1,22 @@
+services:
+  pocketpds:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      POCKETPDS_LISTEN: 0.0.0.0:3000
+      POCKETPDS_DB: /data/pocketpds.db
+      POCKETPDS_DATA_DIR: /data
+      # Publicly reachable URL of this PDS (used in DID documents).
+      POCKETPDS_PUBLIC_URL: https://pds.example.com
+      # Secret used to encrypt account keys and sign access tokens. CHANGE THIS.
+      POCKETPDS_SECRET: change-me
+      # "web" (did:web) or "plc" (did:plc via plc.directory).
+      POCKETPDS_DID_METHOD: web
+      # Admin dashboard token (leave empty to disable /admin).
+      POCKETPDS_ADMIN_TOKEN: change-me
+      # Require an invite code to create an account.
+      # POCKETPDS_INVITE_REQUIRED: "true"
+    volumes:
+      - ./data:/data
