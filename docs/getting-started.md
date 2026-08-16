@@ -1,14 +1,20 @@
 # Getting started
 
-## Build
-
-    go build ./cmd/pocketpds
+## Build from source
 
 Requires Go 1.26+.
 
+```bash
+git clone https://github.com/alesr/pocketPDS
+cd pocketPDS
+go build ./cmd/pocketpds
+```
+
 ## Run
 
-    POCKETPDS_SECRET=<long-random-string> POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
+```bash
+POCKETPDS_SECRET=<long-random-string> POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
+```
 
 `POCKETPDS_SECRET` is required. It encrypts account keys at rest and signs
 access tokens. `-seed` creates a dev account (`dev.example.com` / `password`)
@@ -16,24 +22,26 @@ if none exists. The server listens on `127.0.0.1:3000` by default.
 
 ## Try it
 
-    BASE=http://127.0.0.1:3000
+```bash
+BASE=http://127.0.0.1:3000
 
-    # log in
-    TOKEN=$(curl -s -X POST $BASE/xrpc/com.atproto.server.createSession \
-      -H 'Content-Type: application/json' \
-      -d '{"identifier":"dev.example.com","password":"password"}' \
-      | python3 -c 'import sys,json;print(json.load(sys.stdin)["accessJwt"])')
+# log in
+TOKEN=$(curl -s -X POST $BASE/xrpc/com.atproto.server.createSession \
+  -H 'Content-Type: application/json' \
+  -d '{"identifier":"dev.example.com","password":"password"}' \
+  | python3 -c 'import sys,json;print(json.load(sys.stdin)["accessJwt"])')
 
-    # create a post
-    curl -s -X POST $BASE/xrpc/com.atproto.repo.createRecord \
-      -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-      -d '{"repo":"dev.example.com","collection":"app.bsky.feed.post","record":{"$type":"app.bsky.feed.post","text":"hello world","createdAt":"2026-08-15T00:00:00.000Z"}}'
+# create a post
+curl -s -X POST $BASE/xrpc/com.atproto.repo.createRecord \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"repo":"dev.example.com","collection":"app.bsky.feed.post","record":{"$type":"app.bsky.feed.post","text":"hello world","createdAt":"2026-08-15T00:00:00.000Z"}}'
 
-    # read it back
-    curl -s "$BASE/xrpc/com.atproto.repo.listRecords?repo=dev.example.com&collection=app.bsky.feed.post"
+# read it back
+curl -s "$BASE/xrpc/com.atproto.repo.listRecords?repo=dev.example.com&collection=app.bsky.feed.post"
 
-    # export the repo as a CAR (what a relay does)
-    curl -s "$BASE/xrpc/com.atproto.sync.getRepo?did=did:web:dev.example.com" -o repo.car
+# export the repo as a CAR (what a relay does)
+curl -s "$BASE/xrpc/com.atproto.sync.getRepo?did=did:web:dev.example.com" -o repo.car
+```
 
 ## Configuration
 
@@ -46,7 +54,7 @@ All settings come from environment variables.
 | `POCKETPDS_DATA_DIR` | `./data` | Blob storage (`<dir>/blobs/`) |
 | `POCKETPDS_SERVICE_DID` | *(empty)* | Service DID, reported by `describeServer` |
 | `POCKETPDS_PUBLIC_URL` | `http://127.0.0.1:3000` | Public URL, used in DID documents |
-| `POCKETPDS_SECRET` | *(required)* | Encrypts account keys and signs JWTs. |
+| `POCKETPDS_SECRET` | *(required)* | Encrypts account keys and signs JWTs |
 | `POCKETPDS_DID_METHOD` | `web` | `web` (did:web) or `plc` (did:plc via plc.directory) |
 | `POCKETPDS_PLC_URL` | `https://plc.directory` | PLC directory endpoint |
 | `POCKETPDS_INVITE_REQUIRED` | `false` | Require an invite code to create an account |
@@ -61,17 +69,34 @@ All settings come from environment variables.
 
 ## CLI
 
-    pocketpds serve [-seed]        # default; a leading -flag implies serve
-    pocketpds accounts             # list accounts
-    pocketpds accounts delete <h>  # delete an account
-    pocketpds accounts recover <h> # print the did:plc recovery key
-    pocketpds version
+```bash
+pocketpds serve [-seed]        # default; a leading -flag implies serve
+pocketpds accounts             # list accounts
+pocketpds accounts delete <h>  # delete an account
+pocketpds accounts recover <h> # print the did:plc recovery key
+pocketpds version
+```
 
 ## Docker
 
-    docker compose -f build/docker-compose.yml up --build
+Build locally:
+
+```bash
+docker compose -f build/docker-compose.yml up --build
+```
+
+Or run the published image:
+
+```bash
+docker run -d --name pocketpds \
+  -e POCKETPDS_SECRET=<long-random-string> \
+  -e POCKETPDS_PUBLIC_URL=https://pds.example.com \
+  -p 3000:3000 \
+  -v pocketpds-data:/data \
+  ghcr.io/alesr/pocketpds:latest
+```
 
 ## Running for real
 
-For DNS, HTTPS, `did:web` resolution, and relay onboarding, see
+For Tailscale, the Cloudflare Tunnel, DNS, and relay onboarding, see
 [../build/README.md](../build/README.md).

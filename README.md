@@ -1,24 +1,53 @@
 # PocketPDS
 
-Personal Data Server for the AT Protocol. One Go binary, one SQLite file, no
-external services.
+[![CI](https://github.com/alesr/pocketPDS/actions/workflows/ci.yml/badge.svg)](https://github.com/alesr/pocketPDS/actions/workflows/ci.yml)
+[![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go&logoColor=white)](https://go.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Build
+A single-binary Personal Data Server for the AT Protocol. One Go binary, one
+SQLite file, no external services.
 
-    go build ./cmd/pocketpds
+## What it does
 
-## Run
+- Accounts with `did:web` or `did:plc` identities and P-256 keys.
+- Signed repos (Merkle Search Tree) over `createRecord` / `putRecord` /
+  `deleteRecord` / `applyWrites`, with `swapCommit` / `swapRecord` CAS.
+- The full `com.atproto.sync` surface: CAR export (full and incremental),
+  `getRecord`, `getBlocks`, `listRepos`, `listBlobs`, and the `subscribeRepos`
+  firehose.
+- A minimal single-user AppView for `app.bsky.*` reads, with proxied network
+  reads.
+- Blobs, app passwords, invite codes, email, account lifecycle, and a `/admin`
+  dashboard with a setup wizard.
+- A Bluesky bridge that publishes and archives records against a linked
+  bsky.social account.
 
-    POCKETPDS_SECRET=<long-random-string> POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
+## Install
 
-`POCKETPDS_SECRET` is required. It encrypts account keys at rest and signs
-access tokens. `-seed` creates a dev account (`dev.example.com` / `password`)
-if none exists.
+Build from source (Go 1.26+):
+
+```bash
+go build ./cmd/pocketpds
+POCKETPDS_SECRET=<long-random-string> POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
+```
+
+Or run the container:
+
+```bash
+docker run -d --name pocketpds \
+  -e POCKETPDS_SECRET=<long-random-string> \
+  -p 3000:3000 \
+  -v pocketpds-data:/data \
+  ghcr.io/alesr/pocketpds:latest
+```
+
+`POCKETPDS_SECRET` is required.
 
 ## Docs
 
-- [Getting started](docs/getting-started.md): build, run, API examples, config.
-- [Self-host runbook](build/README.md): DNS, HTTPS, and relay onboarding.
+- [Getting started](docs/getting-started.md) : build, run, API examples, config.
+- [Self-host runbook](build/README.md) : Tailscale, Cloudflare Tunnel, DNS, and
+  the setup wizard.
 
 ## Design
 
