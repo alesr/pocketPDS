@@ -12,8 +12,6 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-const devSecret = "pocketpds-insecure-development-secret"
-
 // Box derives encryption and MAC keys from a secret and encrypts/decrypts
 // account private keys at rest.
 type Box struct {
@@ -22,9 +20,6 @@ type Box struct {
 }
 
 func NewBox(secret string) *Box {
-	if secret == "" {
-		secret = devSecret
-	}
 	salt := []byte("pocketpds:v1")
 	return &Box{
 		encKey: argon2.IDKey([]byte(secret), salt, 1, 64*1024, 4, 32),

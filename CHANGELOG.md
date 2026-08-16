@@ -8,7 +8,10 @@
 - Repository: `createRecord`/`putRecord`/`deleteRecord`/`applyWrites`, `getRecord`,
   `listRecords`, `describeRepo`, `swapCommit`/`swapRecord` compare-and-swap.
 - Sync: `getRepo` (full + incremental), `getCheckout`, `getRecord`, `getBlocks`,
-  `getLatestCommit`, `listRepos`, `listBlobs`, `getHostStatus`, `getRepoStatus`.
+  `getLatestCommit`, `listRepos`, `listBlobs`, `listMissingBlobs`,
+  `listReposByCollection`, `getHostStatus`, `getRepoStatus`.
+- Repository import: `importRepo` ingests an exported repo CAR.
+- did:plc custody: `pocketpds accounts recover <handle>` prints the recovery key.
 - Firehose: `subscribeRepos` (`#commit`, `#identity`, `#account` events).
 - AppView: single-user `app.bsky.*` reads (profile, feed, thread, timeline, graph)
   with viewer state and proxied network reads.

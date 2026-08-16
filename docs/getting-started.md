@@ -8,10 +8,11 @@ Requires Go 1.26+.
 
 ## Run
 
-    POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
+    POCKETPDS_SECRET=<long-random-string> POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
 
-`-seed` creates a dev account (`dev.example.com` / `password`) if none exists.
-The server listens on `127.0.0.1:3000` by default.
+`POCKETPDS_SECRET` is required. It encrypts account keys at rest and signs
+access tokens. `-seed` creates a dev account (`dev.example.com` / `password`)
+if none exists. The server listens on `127.0.0.1:3000` by default.
 
 ## Try it
 
@@ -45,7 +46,7 @@ All settings come from environment variables.
 | `POCKETPDS_DATA_DIR` | `./data` | Blob storage (`<dir>/blobs/`) |
 | `POCKETPDS_SERVICE_DID` | *(empty)* | Service DID, reported by `describeServer` |
 | `POCKETPDS_PUBLIC_URL` | `http://127.0.0.1:3000` | Public URL, used in DID documents |
-| `POCKETPDS_SECRET` | *(empty, dev fallback)* | Encrypts account keys and signs JWTs. Set it before exposing the instance. |
+| `POCKETPDS_SECRET` | *(required)* | Encrypts account keys and signs JWTs. |
 | `POCKETPDS_DID_METHOD` | `web` | `web` (did:web) or `plc` (did:plc via plc.directory) |
 | `POCKETPDS_PLC_URL` | `https://plc.directory` | PLC directory endpoint |
 | `POCKETPDS_INVITE_REQUIRED` | `false` | Require an invite code to create an account |
@@ -63,6 +64,7 @@ All settings come from environment variables.
     pocketpds serve [-seed]        # default; a leading -flag implies serve
     pocketpds accounts             # list accounts
     pocketpds accounts delete <h>  # delete an account
+    pocketpds accounts recover <h> # print the did:plc recovery key
     pocketpds version
 
 ## Docker

@@ -687,6 +687,38 @@ func (m *Manager) ListRepos(ctx context.Context, cursor string, limit int) ([]Re
 	return out, next, nil
 }
 
+// ListReposByCollection returns the DIDs that have at least one record in the
+// given collection, ordered by DID.
+func (m *Manager) ListReposByCollection(ctx context.Context, collection, cursor string, limit int) ([]string, *string, error) {
+	rows, err := m.store.DB.QueryContext(ctx,
+		"SELECT DISTINCT did FROM repo_records WHERE collection = ? AND did > ? ORDER BY did ASC LIMIT ?",
+		collection, cursor, limit+1)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var out []string
+	for rows.Next() {
+		var did string
+		if err := rows.Scan(&did); err != nil {
+			return nil, nil, err
+		}
+		out = append(out, did)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, nil, err
+	}
+
+	var next *string
+	if len(out) > limit {
+		out = out[:limit]
+		last := out[len(out)-1]
+		next = &last
+	}
+	return out, next, nil
+}
+
 func (m *Manager) signingKey(ctx context.Context, did string) (atcrypto.PrivateKey, error) {
 	var encKey string
 	if err := m.store.DB.QueryRowContext(ctx,

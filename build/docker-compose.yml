@@ -12,7 +12,7 @@ services:
       POCKETPDS_DATA_DIR: /data
       # Publicly reachable URL of this PDS (used in DID documents).
       POCKETPDS_PUBLIC_URL: https://pds.example.com
-      # Secret used to encrypt account keys and sign access tokens. CHANGE THIS.
+      # Secret that encrypts account keys and signs access tokens. Required.
       POCKETPDS_SECRET: change-me
       # "web" (did:web) or "plc" (did:plc via plc.directory).
       POCKETPDS_DID_METHOD: web

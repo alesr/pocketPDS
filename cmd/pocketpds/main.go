@@ -47,7 +47,7 @@ func main() {
 	case "version":
 		fmt.Println("pocketpds 0.1.0")
 	default:
-		fmt.Fprintf(os.Stderr, "usage: pocketpds [serve] [accounts] [tunnel] [version]\n")
+		fmt.Fprintf(os.Stderr, "usage: pocketpds [serve] [accounts [delete|recover <handle>]] [tunnel] [version]\n")
 		os.Exit(2)
 	}
 }
@@ -64,7 +64,7 @@ func serve(args []string) error {
 	slog.SetDefault(makeLogger(cfg.LogLevel))
 
 	if cfg.Secret == "" {
-		slog.Warn("POCKETPDS_SECRET is unset; using an insecure development key. Set it before exposing this instance.")
+		return errors.New("POCKETPDS_SECRET is required")
 	}
 
 	ctx := context.Background()
@@ -138,8 +138,17 @@ func accounts(args []string) error {
 		}
 		return deleteAccount(args[1])
 	}
+	if len(args) > 0 && args[0] == "recover" {
+		if len(args) < 2 {
+			return fmt.Errorf("usage: pocketpds accounts recover <handle>")
+		}
+		return recoverAccount(args[1])
+	}
 
 	cfg := config.FromEnv()
+	if cfg.Secret == "" {
+		return errors.New("POCKETPDS_SECRET is required")
+	}
 	store, err := db.Open(context.Background(), cfg.DatabasePath, cfg.Secret)
 	if err != nil {
 		return fmt.Errorf("open database: %w", err)
@@ -173,6 +182,9 @@ func accounts(args []string) error {
 
 func deleteAccount(handle string) error {
 	cfg := config.FromEnv()
+	if cfg.Secret == "" {
+		return errors.New("POCKETPDS_SECRET is required")
+	}
 	store, err := db.Open(context.Background(), cfg.DatabasePath, cfg.Secret)
 	if err != nil {
 		return fmt.Errorf("open database: %w", err)
@@ -204,6 +216,32 @@ func deleteAccount(handle string) error {
 		return fmt.Errorf("no account with handle %q", handle)
 	}
 	fmt.Printf("deleted account %q\n", handle)
+	return nil
+}
+
+// recoverAccount decrypts and prints the did:plc recovery key for an account,
+// so the owner can take custody of it.
+func recoverAccount(handle string) error {
+	cfg := config.FromEnv()
+	if cfg.Secret == "" {
+		return errors.New("POCKETPDS_SECRET is required")
+	}
+	store, err := db.Open(context.Background(), cfg.DatabasePath, cfg.Secret)
+	if err != nil {
+		return fmt.Errorf("open database: %w", err)
+	}
+	defer func() { _ = store.Close() }()
+
+	var did, encKey string
+	if err := store.DB.QueryRow("SELECT did, recovery_key FROM accounts WHERE handle = ?", handle).Scan(&did, &encKey); err != nil {
+		return fmt.Errorf("no account with handle %q", handle)
+	}
+	raw, err := store.Box.Decrypt(encKey)
+	if err != nil {
+		return fmt.Errorf("decrypt recovery key: %w", err)
+	}
+	fmt.Printf("did: %s\n", did)
+	fmt.Printf("recovery key (hex): %x\n", raw)
 	return nil
 }
 

@@ -79,6 +79,7 @@ func New(cfg *config.Config, store *db.Store, tunnels *tunnel.Manager) (*Server,
 	s.mux.HandleFunc("GET /xrpc/com.atproto.repo.getRecord", api.HandleGetRecord(store, mgr))
 	s.mux.HandleFunc("GET /xrpc/com.atproto.repo.listRecords", api.HandleListRecords(store, mgr))
 	s.mux.HandleFunc("GET /xrpc/com.atproto.repo.describeRepo", api.HandleDescribeRepo(store, mgr))
+	s.mux.HandleFunc("POST /xrpc/com.atproto.repo.importRepo", api.HandleImportRepo(cfg, store, mgr))
 
 	s.mux.HandleFunc("POST /xrpc/com.atproto.repo.uploadBlob", api.HandleUploadBlob(store, blobs, cfg.BlobSizeLimit))
 
@@ -90,6 +91,8 @@ func New(cfg *config.Config, store *db.Store, tunnels *tunnel.Manager) (*Server,
 	s.mux.HandleFunc("GET /xrpc/com.atproto.sync.getBlob", api.HandleGetBlob(blobs))
 	s.mux.HandleFunc("GET /xrpc/com.atproto.sync.listRepos", api.HandleListRepos(mgr))
 	s.mux.HandleFunc("GET /xrpc/com.atproto.sync.listBlobs", api.HandleListBlobs(blobs))
+	s.mux.HandleFunc("GET /xrpc/com.atproto.sync.listMissingBlobs", api.HandleListMissingBlobs())
+	s.mux.HandleFunc("GET /xrpc/com.atproto.sync.listReposByCollection", api.HandleListReposByCollection(mgr))
 	s.mux.HandleFunc("POST /xrpc/com.atproto.sync.notifyOfUpdate", api.HandleNotifyOfUpdate(store))
 	s.mux.HandleFunc("POST /xrpc/com.atproto.sync.requestCrawl", api.HandleRequestCrawl)
 	s.mux.HandleFunc("GET /xrpc/com.atproto.sync.getHostStatus", api.HandleGetHostStatus(store))

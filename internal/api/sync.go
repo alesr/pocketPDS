@@ -161,6 +161,52 @@ func HandleListRepos(mgr *repo.Manager) http.HandlerFunc {
 	}
 }
 
+// HandleListMissingBlobs reports blobs referenced by repos but missing from
+// local storage. A self-hosted PDS stores every blob it uploads, so this is
+// always empty.
+func HandleListMissingBlobs() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		xrpc.WriteJSON(w, map[string]any{"cursor": "", "blobs": []any{}})
+	}
+}
+
+// HandleListReposByCollection lists the DIDs that have records in a collection.
+func HandleListReposByCollection(mgr *repo.Manager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		collection, err := syntax.ParseNSID(r.URL.Query().Get("collection"))
+		if err != nil {
+			xrpc.WriteXRPCError(w, http.StatusBadRequest, "InvalidRequest", err.Error())
+			return
+		}
+
+		limit := 50
+		if raw := r.URL.Query().Get("limit"); raw != "" {
+			n, err := strconv.Atoi(raw)
+			if err != nil || n < 1 || n > 2000 {
+				xrpc.WriteXRPCError(w, http.StatusBadRequest, "InvalidRequest", "limit must be 1-2000")
+				return
+			}
+			limit = n
+		}
+
+		dids, next, err := mgr.ListReposByCollection(r.Context(), collection.String(), r.URL.Query().Get("cursor"), limit)
+		if err != nil {
+			xrpc.WriteXRPCError(w, http.StatusInternalServerError, "InternalError", err.Error())
+			return
+		}
+
+		out := make([]map[string]any, 0, len(dids))
+		for _, d := range dids {
+			out = append(out, map[string]any{"did": d})
+		}
+		resp := map[string]any{"repos": out}
+		if next != nil {
+			resp["cursor"] = *next
+		}
+		xrpc.WriteJSON(w, resp)
+	}
+}
+
 func HandleNotifyOfUpdate(store *db.Store) http.HandlerFunc {
 	type input struct {
 		Hostname string `json:"hostname"`

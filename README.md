@@ -3,18 +3,17 @@
 Personal Data Server for the AT Protocol. One Go binary, one SQLite file, no
 external services.
 
-Status: experimental. Accounts, records, sync, and the firehose work, and the
-data round-trips through indigo's own libraries. Not production-hardened yet.
-
 ## Build
 
     go build ./cmd/pocketpds
 
 ## Run
 
-    POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
+    POCKETPDS_SECRET=<long-random-string> POCKETPDS_DB=./pocketpds.db ./pocketpds -seed
 
-`-seed` creates a dev account (`dev.example.com` / `password`) if none exists.
+`POCKETPDS_SECRET` is required. It encrypts account keys at rest and signs
+access tokens. `-seed` creates a dev account (`dev.example.com` / `password`)
+if none exists.
 
 ## Docs
 
@@ -28,13 +27,6 @@ builds the Merkle Search Tree and signs commits. Reads and sync go through
 `atproto/repo` and `atproto/identity`. Blocks are stored as DAG-CBOR in a
 SQLite blockstore, with a denormalized `repo_records` index backing
 `getRecord` and `listRecords`.
-
-## Limitations
-
-- `did:web` resolution is on you. The PDS serves the DID doc, but the domain
-  has to route `/.well-known/did.json` to it over HTTPS.
-- Not implemented: `did:plc` recovery-key custody, `#sync` firehose events,
-  `listMissingBlobs`, `listReposByCollection`, `importRepo`.
 
 ## License
 
