@@ -3,6 +3,8 @@ package server
 import (
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRateLimiterBurst(t *testing.T) {
@@ -10,24 +12,16 @@ func TestRateLimiterBurst(t *testing.T) {
 	l := newRateLimiter(1, 3)
 
 	for i := range 3 {
-		if !l.allow("k") {
-			t.Fatalf("request %d should be allowed within burst", i+1)
-		}
+		require.True(t, l.allow("k"), "request %d should be allowed within burst", i+1)
 	}
-	if l.allow("k") {
-		t.Fatal("request over burst should be rejected")
-	}
+	require.False(t, l.allow("k"), "request over burst should be rejected")
 }
 
 func TestRateLimiterDistinctKeys(t *testing.T) {
 	t.Parallel()
 	l := newRateLimiter(1, 1)
-	if !l.allow("a") {
-		t.Fatal("first key should be allowed")
-	}
-	if !l.allow("b") {
-		t.Fatal("independent key should be allowed")
-	}
+	require.True(t, l.allow("a"), "first key should be allowed")
+	require.True(t, l.allow("b"), "independent key should be allowed")
 }
 
 func TestClientIP(t *testing.T) {
@@ -41,15 +35,9 @@ func TestClientIP(t *testing.T) {
 	}
 
 	untrusted := clientIP(false)
-	if got := untrusted(mk("1.2.3.4:1234", "9.9.9.9")); got != "1.2.3.4" {
-		t.Fatalf("untrusted should use RemoteAddr, got %q", got)
-	}
+	require.Equal(t, "1.2.3.4", untrusted(mk("1.2.3.4:1234", "9.9.9.9")), "untrusted should use RemoteAddr")
 
 	trusted := clientIP(true)
-	if got := trusted(mk("1.2.3.4:1234", "9.9.9.9:9999, 8.8.8.8")); got != "9.9.9.9" {
-		t.Fatalf("trusted should use leftmost XFF, got %q", got)
-	}
-	if got := trusted(mk("1.2.3.4:1234", "")); got != "1.2.3.4" {
-		t.Fatalf("trusted without XFF should use RemoteAddr, got %q", got)
-	}
+	require.Equal(t, "9.9.9.9", trusted(mk("1.2.3.4:1234", "9.9.9.9:9999, 8.8.8.8")), "trusted should use leftmost XFF")
+	require.Equal(t, "1.2.3.4", trusted(mk("1.2.3.4:1234", "")), "trusted without XFF should use RemoteAddr")
 }

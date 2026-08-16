@@ -7,55 +7,37 @@ import (
 	"testing"
 
 	"github.com/bluesky-social/indigo/atproto/atcrypto"
+	"github.com/stretchr/testify/require"
 )
 
 func TestOperationSignAndDID(t *testing.T) {
 	t.Parallel()
 	signing, err := atcrypto.GeneratePrivateKeyP256()
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 	recovery, err := atcrypto.GeneratePrivateKeyP256()
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	signingPub, _ := signing.PublicKey()
 	recoveryPub, _ := recovery.PublicKey()
 	op := NewAtproto(signingPub.DIDKey(), "alice.test", "https://pds.example.com", []string{recoveryPub.DIDKey()}, nil)
 
-	if err := op.Sign(recovery); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, op.Sign(recovery))
 
 	// Signature must verify against the recovery key (SHA-256 + sign).
 	unsigned := *op
 	unsigned.Sig = ""
 	var buf bytes.Buffer
-	if err := unsigned.MarshalCBOR(&buf); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, unsigned.MarshalCBOR(&buf))
 	sig, err := base64.RawURLEncoding.DecodeString(op.Sig)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := recoveryPub.HashAndVerify(buf.Bytes(), sig); err != nil {
-		t.Fatalf("signature does not verify: %v", err)
-	}
+	require.NoError(t, err)
+	require.NoError(t, recoveryPub.HashAndVerify(buf.Bytes(), sig), "signature does not verify")
 
 	// DID format: did:plc: + 24 base32 chars, deterministic.
 	did1, err := op.DID()
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 	did2, err := op.DID()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if did1 != did2 {
-		t.Fatalf("DID derivation not deterministic: %s vs %s", did1, did2)
-	}
-	if len(did1) != len("did:plc:")+24 || !strings.HasPrefix(did1, "did:plc:") {
-		t.Fatalf("unexpected DID: %q", did1)
-	}
+	require.NoError(t, err)
+	require.Equal(t, did1, did2, "DID derivation not deterministic")
+	require.Len(t, did1, len("did:plc:")+24)
+	require.True(t, strings.HasPrefix(did1, "did:plc:"), "unexpected DID: %q", did1)
 }

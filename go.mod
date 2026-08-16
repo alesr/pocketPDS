@@ -10,6 +10,7 @@ require (
 	github.com/ipfs/go-ipld-cbor v0.1.0
 	github.com/ipld/go-car v0.6.1-0.20230509095817-92d28eb23ba4
 	github.com/multiformats/go-multihash v0.2.3
+	github.com/stretchr/testify v1.11.1
 	github.com/whyrusleeping/cbor-gen v0.2.1-0.20241030202151-b7a6831be65e
 	golang.org/x/crypto v0.55.0
 	golang.org/x/sync v0.22.0
@@ -235,7 +236,6 @@ require (
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.3.1 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tetafro/godot v1.5.6 // indirect
 	github.com/timakin/bodyclose v0.0.0-20260129054331-73d1f95b84b4 // indirect

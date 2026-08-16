@@ -3,23 +3,19 @@ package tunnel
 import (
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestLineWriterSplitsAndRetainsPartial(t *testing.T) {
 	t.Parallel()
 	w := &lineWriter{}
 	_, _ = w.Write([]byte("hello\nwor"))
-	if string(w.rest) != "wor" {
-		t.Fatalf("rest = %q, want %q", w.rest, "wor")
-	}
+	require.Equal(t, "wor", string(w.rest))
 	_, _ = w.Write([]byte("ld\n"))
-	if len(w.rest) != 0 {
-		t.Fatalf("rest = %q, want empty", w.rest)
-	}
+	require.Empty(t, w.rest)
 	_, _ = w.Write([]byte("a\nb\nc"))
-	if string(w.rest) != "c" {
-		t.Fatalf("rest = %q, want %q", w.rest, "c")
-	}
+	require.Equal(t, "c", string(w.rest))
 }
 
 func TestLineWriterManyFragments(t *testing.T) {
@@ -30,11 +26,8 @@ func TestLineWriterManyFragments(t *testing.T) {
 	for range 1000 {
 		_, _ = w.Write([]byte("x"))
 	}
-	if string(w.rest) != strings.Repeat("x", 1000) {
-		t.Fatalf("rest length = %d, want 1000", len(w.rest))
-	}
+	require.Len(t, w.rest, 1000)
+	require.Equal(t, strings.Repeat("x", 1000), string(w.rest))
 	_, _ = w.Write([]byte("\n"))
-	if len(w.rest) != 0 {
-		t.Fatalf("rest = %q, want empty", w.rest)
-	}
+	require.Empty(t, w.rest)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/alesr/pocketPDS/internal/config"
 	"github.com/alesr/pocketPDS/internal/db"
 	"github.com/alesr/pocketPDS/internal/repo"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRewriteURIs(t *testing.T) {
@@ -29,14 +30,11 @@ func TestRewriteURIs(t *testing.T) {
 	rewriteURIs(rec, "did:web:old", "did:plc:new")
 	reply := rec["reply"].(map[string]any)
 	root := reply["root"].(map[string]any)
-	if root["uri"] != "at://did:plc:new/app.bsky.feed.post/1" {
-		t.Fatalf("root uri not rewritten: %v", root["uri"])
-	}
+	require.Equal(t, "at://did:plc:new/app.bsky.feed.post/1", root["uri"], "root uri not rewritten")
+
 	// blob $link must be untouched
 	img := rec["embed"].(map[string]any)["images"].([]any)[0].(map[string]any)["image"].(map[string]any)
-	if blobLink(img) != "bafkreiblob" {
-		t.Fatalf("blob link changed: %v", blobLink(img))
-	}
+	require.Equal(t, "bafkreiblob", blobLink(img), "blob link changed")
 }
 
 func TestWalkBlobs(t *testing.T) {
@@ -51,55 +49,41 @@ func TestWalkBlobs(t *testing.T) {
 		},
 	}
 	var links []string
-	if err := walkBlobs(rec, func(blob map[string]any) error {
+	require.NoError(t, walkBlobs(rec, func(blob map[string]any) error {
 		links = append(links, blobLink(blob))
 		return nil
-	}); err != nil {
-		t.Fatal(err)
-	}
-	if len(links) != 2 || links[0] != "a" || links[1] != "b" {
-		t.Fatalf("unexpected blob links: %v", links)
-	}
+	}))
+	require.Equal(t, []string{"a", "b"}, links)
 }
 
 func TestConfigRoundTrip(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	store, err := db.Open(ctx, t.TempDir()+"/test.db", "test-secret")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 	defer func() { _ = store.Close() }()
 
 	svc := New(&config.Config{}, store, repo.NewManager(store), mustBlobs(t, store))
 
-	if err := svc.SetConfig(ctx, "alice.bsky.social", "app-pass-123"); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, svc.SetConfig(ctx, "alice.bsky.social", "app-pass-123"))
 	handle, passwordSet, err := svc.Config(ctx)
-	if err != nil || handle != "alice.bsky.social" || !passwordSet {
-		t.Fatalf("config: handle=%q set=%v err=%v", handle, passwordSet, err)
-	}
+	require.NoError(t, err)
+	require.Equal(t, "alice.bsky.social", handle)
+	require.True(t, passwordSet)
 	pw, err := svc.password(ctx)
-	if err != nil || pw != "app-pass-123" {
-		t.Fatalf("password decrypt: %q err=%v", pw, err)
-	}
+	require.NoError(t, err)
+	require.Equal(t, "app-pass-123", pw)
 
 	// update only the handle, keep the password
-	if err := svc.SetHandle(ctx, "bob.bsky.social"); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, svc.SetHandle(ctx, "bob.bsky.social"))
 	pw, err = svc.password(ctx)
-	if err != nil || pw != "app-pass-123" {
-		t.Fatalf("password lost after handle update: %q err=%v", pw, err)
-	}
+	require.NoError(t, err)
+	require.Equal(t, "app-pass-123", pw)
 }
 
 func mustBlobs(t *testing.T, store *db.Store) *blob.Store {
 	t.Helper()
 	b, err := blob.New(t.TempDir(), store)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 	return b
 }
