@@ -74,7 +74,7 @@ This returns a `did:web:pds.alesr.me` DID. The DID document is now served at
 ## 5. Verify
 
 ```bash
-./deploy/verify.sh pds.alesr.me https://pds.alesr.me
+./verify.sh pds.alesr.me https://pds.alesr.me
 ```
 
 It checks handle resolution, DID resolution, and that the PDS reports a head

@@ -33,8 +33,7 @@ func HandleUploadBlob(store *db.Store, blobs *blob.Store, sizeLimit int64) http.
 
 		c, size, err := blobs.Put(r.Context(), did, mime, body)
 		if err != nil {
-			var maxErr *http.MaxBytesError
-			if errors.As(err, &maxErr) {
+			if _, ok := errors.AsType[*http.MaxBytesError](err); ok {
 				xrpc.WriteXRPCError(w, http.StatusRequestEntityTooLarge, "BlobTooLarge", "blob exceeds size limit")
 				return
 			}

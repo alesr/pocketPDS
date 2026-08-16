@@ -27,7 +27,7 @@ func TestLineWriterManyFragments(t *testing.T) {
 	// Small writes without newlines must not corrupt the buffer; this is the
 	// aliasing path that bit the previous implementation.
 	w := &lineWriter{}
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		_, _ = w.Write([]byte("x"))
 	}
 	if string(w.rest) != strings.Repeat("x", 1000) {

@@ -20,10 +20,12 @@ jobs:
         run: go mod verify
       - name: Format check
         run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
-      - name: Install golangci-lint
-        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
       - name: Lint
-        run: '"$(go env GOPATH)/bin/golangci-lint" run --timeout 5m'
+        run: go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --timeout 5m
+      - name: Modernize
+        run: go run golang.org/x/tools/go/analysis/passes/modernize/cmd/modernize ./...
+      - name: Vulnerability scan
+        run: go run golang.org/x/vuln/cmd/govulncheck ./...
 
   test:
     strategy:

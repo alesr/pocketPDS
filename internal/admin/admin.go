@@ -234,8 +234,6 @@ func writeJSON(w http.ResponseWriter, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-func strPtr(s string) *string { return &s }
-
 // tokenEqual compares two secrets in constant time, hashing first so that
 // differing lengths do not leak timing information.
 func tokenEqual(a, b string) bool {
@@ -340,7 +338,7 @@ func (h *Handler) deactivate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_ = h.mgr.EmitAccount(r.Context(), did, false, strPtr("deactivated"))
+	_ = h.mgr.EmitAccount(r.Context(), did, false, new("deactivated"))
 	writeJSON(w, map[string]any{"ok": true})
 }
 
@@ -366,7 +364,7 @@ func (h *Handler) deleteAccount(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_ = h.mgr.EmitAccount(r.Context(), did, false, strPtr("deleted"))
+	_ = h.mgr.EmitAccount(r.Context(), did, false, new("deleted"))
 	writeJSON(w, map[string]any{"ok": true})
 }
 

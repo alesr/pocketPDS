@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"maps"
 	"net/http"
 
 	"github.com/alesr/pocketPDS/internal/db"
@@ -190,9 +191,7 @@ func (a *appviewSvc) loadViewerState(ctx context.Context, did string) *viewerSta
 func mergeViewer(existing any) map[string]any {
 	v := map[string]any{}
 	if m, ok := existing.(map[string]any); ok {
-		for k, val := range m {
-			v[k] = val
-		}
+		maps.Copy(v, m)
 	}
 	return v
 }

@@ -85,14 +85,14 @@ pocketpds version
 ## Docker
 
 ```bash
-docker compose up --build
+docker compose -f build/docker-compose.yml up --build
 ```
 
-Edit `docker-compose.yml` to set `POCKETPDS_PUBLIC_URL`, `POCKETPDS_SECRET`, and
+Edit `build/docker-compose.yml` to set `POCKETPDS_PUBLIC_URL`, `POCKETPDS_SECRET`, and
 `POCKETPDS_ADMIN_TOKEN`. A systemd unit is provided at
-[`deploy/pocketpds.service`](deploy/pocketpds.service), and a full self-host
+[`build/pocketpds.service`](build/pocketpds.service), and a full self-host
 runbook (DNS, reverse proxy, `did:web`, relay onboarding) at
-[`deploy/README.md`](deploy/README.md) with [`deploy/verify.sh`](deploy/verify.sh).
+[`build/README.md`](build/README.md) with [`build/verify.sh`](build/verify.sh).
 
 ## API surface
 

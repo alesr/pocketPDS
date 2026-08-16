@@ -86,8 +86,8 @@ func clientIP(trustProxy bool) func(r *http.Request) string {
 		if trustProxy {
 			if xf := r.Header.Get("X-Forwarded-For"); xf != "" {
 				first := xf
-				if i := strings.Index(xf, ","); i >= 0 {
-					first = xf[:i]
+				if before, _, ok := strings.Cut(xf, ","); ok {
+					first = before
 				}
 				first = strings.TrimSpace(first)
 				if first != "" {

@@ -337,7 +337,7 @@ func TestApplyWritesAndSwap(t *testing.T) {
 	// swapCommit CAS: wrong head must fail.
 	_, _, _, err = mgr.ApplyWrites(ctx, keys.Did, []Op{
 		{Action: "create", Collection: "app.bsky.feed.post", Rec: post("three"), RecordJSON: []byte(`{"$type":"app.bsky.feed.post","text":"three"}`)},
-	}, strPtr("bogus"))
+	}, new("bogus"))
 	if err == nil || !errors.Is(err, ErrSwapCommitMismatch) {
 		t.Fatalf("expected swapCommit mismatch, got %v", err)
 	}
@@ -345,7 +345,7 @@ func TestApplyWritesAndSwap(t *testing.T) {
 	// swapRecord CAS on a delete with wrong CID must fail.
 	rkey := results[0].Rkey
 	_, _, _, err = mgr.ApplyWrites(ctx, keys.Did, []Op{
-		{Action: "delete", Collection: "app.bsky.feed.post", Rkey: rkey, SwapRecord: strPtr("bogus")},
+		{Action: "delete", Collection: "app.bsky.feed.post", Rkey: rkey, SwapRecord: new("bogus")},
 	}, nil)
 	if err == nil || !errors.Is(err, ErrSwapRecordMismatch) {
 		t.Fatalf("expected swapRecord mismatch, got %v", err)
@@ -363,5 +363,3 @@ func TestApplyWritesAndSwap(t *testing.T) {
 		t.Fatalf("delete with correct swapRecord: %v", err)
 	}
 }
-
-func strPtr(s string) *string { return &s }

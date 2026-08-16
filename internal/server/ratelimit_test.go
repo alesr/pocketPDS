@@ -9,7 +9,7 @@ func TestRateLimiterBurst(t *testing.T) {
 	t.Parallel()
 	l := newRateLimiter(1, 3)
 
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		if !l.allow("k") {
 			t.Fatalf("request %d should be allowed within burst", i+1)
 		}

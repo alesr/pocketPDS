@@ -22,7 +22,7 @@ func HandleDeactivateAccount(store *db.Store, mgr *repo.Manager) http.HandlerFun
 			xrpc.WriteXRPCError(w, http.StatusInternalServerError, "InternalError", err.Error())
 			return
 		}
-		_ = mgr.EmitAccount(r.Context(), did, false, strPtr("deactivated"))
+		_ = mgr.EmitAccount(r.Context(), did, false, new("deactivated"))
 		xrpc.WriteJSON(w, map[string]any{})
 	}
 }
@@ -80,7 +80,7 @@ func HandleDeleteAccount(store *db.Store, mgr *repo.Manager) http.HandlerFunc {
 			xrpc.WriteXRPCError(w, http.StatusInternalServerError, "InternalError", err.Error())
 			return
 		}
-		_ = mgr.EmitAccount(r.Context(), did, false, strPtr("deleted"))
+		_ = mgr.EmitAccount(r.Context(), did, false, new("deleted"))
 		xrpc.WriteJSON(w, map[string]any{})
 	}
 }
@@ -103,5 +103,3 @@ func HandleCheckAccountStatus(store *db.Store) http.HandlerFunc {
 		})
 	}
 }
-
-func strPtr(s string) *string { return &s }

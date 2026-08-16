@@ -30,10 +30,7 @@ func (h *Handler) eventsStream(w http.ResponseWriter, r *http.Request) {
 	}
 	var maxSeq int64
 	_ = h.store.DB.QueryRowContext(r.Context(), "SELECT COALESCE(MAX(seq),0) FROM firehose_events").Scan(&maxSeq)
-	cursor := maxSeq - int64(limit)
-	if cursor < 0 {
-		cursor = 0
-	}
+	cursor := max(maxSeq-int64(limit), 0)
 
 	frames, cleanup := h.mgr.Emitter().Subscribe(r.Context(), cursor)
 	defer cleanup()
@@ -151,7 +148,7 @@ func decodeHeader(r io.Reader) (string, int64, error) {
 
 	var msgType string
 	var op int64 = 1
-	for i := uint64(0); i < n; i++ {
+	for range n {
 		key, err := cbg.ReadString(r)
 		if err != nil {
 			return "", 0, err

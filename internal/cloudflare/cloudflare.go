@@ -195,9 +195,9 @@ func DetectPublicIP(ctx context.Context) (string, error) {
 
 		body := string(data)
 		if strings.Contains(url, "cdn-cgi/trace") {
-			for _, line := range strings.Split(body, "\n") {
-				if strings.HasPrefix(line, "ip=") {
-					return strings.TrimPrefix(line, "ip="), nil
+			for line := range strings.SplitSeq(body, "\n") {
+				if after, ok := strings.CutPrefix(line, "ip="); ok {
+					return after, nil
 				}
 			}
 			continue
