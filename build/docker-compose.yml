@@ -2,7 +2,7 @@ services:
   pocketpds:
     build:
       context: ..
-      dockerfile: Dockerfile
+      dockerfile: build/Dockerfile
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -21,4 +21,4 @@ services:
       # Require an invite code to create an account.
       # POCKETPDS_INVITE_REQUIRED: "true"
     volumes:
-      - ./data:/data
+      - ../data:/data
