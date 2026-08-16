@@ -1,41 +1,45 @@
 # Contributing
 
-Thanks for your interest in PocketPDS. Contributions are welcome.
+PRs welcome.
 
 ## Setup
 
-- Go 1.26 or later.
-- No CGO, no external services required for local development.
+- Go 1.26+.
+- No CGO, no external services.
 
 ## Layout
 
-- `cmd/pocketpds` — entrypoint (CLI + server).
-- `internal/api` — XRPC handlers.
-- `internal/admin` — embedded admin dashboard.
-- `internal/blob` — filesystem blob storage.
-- `internal/config` — environment configuration.
-- `internal/crypto` — AES-256-GCM box for encrypting keys at rest.
-- `internal/db` — SQLite storage and migrations.
-- `internal/email` — SMTP sender (log-only fallback).
-- `internal/firehose` — event emitter and DAG-CBOR framing.
-- `internal/identity` — `did:web` key/document generation.
-- `internal/plc` — `did:plc` client.
-- `internal/repo` — the indigo write path, MST/commit management, CAR sync.
-- `internal/server` — HTTP mux, middleware, rate limiting.
-- `internal/xrpc` — XRPC envelope helpers.
+- `cmd/pocketpds` - entrypoint (CLI + server)
+- `internal/api` - XRPC handlers and the single-user AppView
+- `internal/admin` - embedded admin dashboard
+- `internal/blob` - filesystem blob storage
+- `internal/bridge` - Bluesky bridge (publish/archive to a bsky.social account)
+- `internal/cloudflare` - Cloudflare API client (tunnels, DNS)
+- `internal/config` - environment configuration
+- `internal/crypto` - AES-256-GCM box for keys at rest
+- `internal/db` - SQLite storage and migrations
+- `internal/email` - SMTP sender (log-only fallback)
+- `internal/firehose` - event emitter and DAG-CBOR framing
+- `internal/identity` - did:web key/document generation
+- `internal/plc` - did:plc client
+- `internal/repo` - indigo write path, MST/commit management, CAR sync
+- `internal/server` - HTTP mux, middleware, rate limiting
+- `internal/tunnel` - cloudflared tunnel supervision
+- `internal/xrpc` - XRPC envelope helpers
+- `build/` - Docker, systemd unit, self-host runbook, pinned dev tools
 
 ## Conventions
 
-- XRPC helpers live in `internal/xrpc`; errors use the `{"error","message"}` envelope.
-- Repo writes go through the top-level `github.com/bluesky-social/indigo/repo`
-  package; `atproto/repo` is read/verify only.
+- XRPC errors use the `{"error","message"}` envelope.
+- Repo writes go through `github.com/bluesky-social/indigo/repo`; `atproto/repo`
+  is read/verify only.
 - Add a new `migration` entry in `internal/db/db.go` for schema changes; never
   edit an existing migration.
-- Keep dependencies minimal: prefer the standard library and code already in the
-  module graph.
+- Keep dependencies minimal.
 
 ## Testing
 
-Integration tests round-trip produced commits/CARs/firehose frames through
-indigo's own read/verify path (`internal/repo/manager_test.go`,
-`internal/firehose`, `internal/plc`).
+    go test ./...
+
+Integration tests round-trip commits, CARs, and firehose frames through
+indigo's read/verify path.

@@ -4,6 +4,3 @@
 *.db-shm
 data/
 /pocketpds
-
-# Personal docs (not part of the public repo)
-EXPLAINER.md
