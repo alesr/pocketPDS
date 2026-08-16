@@ -43,6 +43,18 @@ curl -s "$BASE/xrpc/com.atproto.repo.listRecords?repo=dev.example.com&collection
 curl -s "$BASE/xrpc/com.atproto.sync.getRepo?did=did:web:dev.example.com" -o repo.car
 ```
 
+## Use a client
+
+Hand-rolling XRPC is optional. Point a client at your instance instead:
+[Graysky](https://graysky.app) lets you sign in with any PDS URL and reads
+profiles and feeds through PocketPDS's AppView.
+
+## Admin panel
+
+`/admin` has the setup wizard and the Bluesky bridge. Link a bsky.social
+account and hit Sync to publish your PDS posts there and archive their posts
+back into your PDS.
+
 ## Configuration
 
 All settings come from environment variables.

@@ -85,6 +85,13 @@ curl -s -X POST https://pds.alesr.me/xrpc/com.atproto.server.createAccount \
 Returns a `did:web:pds.alesr.me` DID. The DID document is served at
 `https://pds.alesr.me/.well-known/did.json`.
 
+## Clients
+
+Point any AT Protocol client that accepts a custom PDS URL at your instance.
+[Graysky](https://graysky.app) works against PocketPDS's AppView. To also
+publish to and archive from bsky.social, use the Bluesky bridge in the admin
+panel (`/admin`).
+
 ## Verify
 
 ```bash
