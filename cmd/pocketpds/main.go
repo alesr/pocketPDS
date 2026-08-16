@@ -23,6 +23,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// version is set at build time via -ldflags "-X main.version=..."; it falls
+// back to "dev" for plain `go build`.
+var version = "dev"
+
 func main() {
 	args := os.Args[1:]
 	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
@@ -45,7 +49,7 @@ func main() {
 			os.Exit(1)
 		}
 	case "version":
-		fmt.Println("pocketpds 0.1.0")
+		fmt.Println("pocketpds " + version)
 	default:
 		fmt.Fprintf(os.Stderr, "usage: pocketpds [serve] [accounts [delete|recover <handle>]] [tunnel] [version]\n")
 		os.Exit(2)

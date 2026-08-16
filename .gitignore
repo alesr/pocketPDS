@@ -4,3 +4,6 @@
 *.db-shm
 data/
 /pocketpds
+
+# GoReleaser output
+dist/
